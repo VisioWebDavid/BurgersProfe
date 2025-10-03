@@ -192,7 +192,6 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 .remove-btn { background:#cc0000; border:none; border-radius:50%; color:white; font-weight:bold; width:25px; height:25px; cursor:pointer; }
 .submit-btn { width:100%; background:#313030; padding:1rem; border:none; border-radius:10px; cursor:pointer; font-size:1.2rem; font-weight:bold; transition:0.3s; }
 .submit-btn:hover { background:#cc0000; transform:scale(1.05); }
-.horario { position:fixed; bottom:20px; right:20px; background:#ff6600; color:#111; padding:1rem 1.5rem; border-radius:15px; font-weight:bold; box-shadow:0 0 15px #ff6600; animation: float 2s infinite alternate; z-index:1000; }
 #adminSticker { position:fixed; top:20px; right:20px; font-size:2rem; cursor:pointer; z-index:1000; }
 #loginDiv input, #loginDiv button { width:100%; margin-bottom:0.5rem; padding:0.7rem; border-radius:8px; border:none; outline:none; }
 #loginDiv button { background:#cc0000; color:white; font-weight:bold; cursor:pointer; }
@@ -222,38 +221,37 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
     </div>
   </div>
 
-
-<!-- Hot Dog -->
-<div class="card">
-  <img src="https://i.postimg.cc/RZcFnG6p/had-odg.jpg" alt="Hot Dog" onclick="toggleVariants('hotdogVariants', this)">
-  <h3>Hot Dog</h3>
-  <div class="variants" id="hotdogVariants">
-    <button class="variant-btn" onclick="addProduct('Hot Dog Sencillo',60)">Sencillo $60</button>
-    <button class="variant-btn" onclick="addProduct('Especial de Camarón',100)">Especial de Camarón $100</button>
-    <button class="variant-btn" onclick="addProduct('Embarazado',90)">Embarazado $90</button>
+  <!-- Hot Dog -->
+  <div class="card">
+    <img src="https://i.postimg.cc/RZcFnG6p/had-odg.jpg" alt="Hot Dog" onclick="toggleVariants('hotdogVariants', this)">
+    <h3>Hot Dog</h3>
+    <div class="variants" id="hotdogVariants">
+      <button class="variant-btn" onclick="addProduct('Hot Dog Sencillo',60)">Sencillo $60</button>
+      <button class="variant-btn" onclick="addProduct('Especial de Camarón',100)">Especial de Camarón $100</button>
+      <button class="variant-btn" onclick="addProduct('Embarazado',90)">Embarazado $90</button>
+    </div>
   </div>
-</div>
 
-<!-- Papas -->
-<div class="card">
-  <img src="https://i.postimg.cc/QNnfKJ1S/papas.avif" alt="Papas" onclick="toggleVariants('papasVariants', this)">
-  <h3>Papas</h3>
-  <div class="variants" id="papasVariants">
-    <button class="variant-btn" onclick="addProduct('Papas Gajo',60)">Gajo $60</button>
-    <button class="variant-btn" onclick="addProduct('Papas Naturales',55)">Naturales $55</button>
+  <!-- Papas -->
+  <div class="card">
+    <img src="https://i.postimg.cc/QNnfKJ1S/papas.avif" alt="Papas" onclick="toggleVariants('papasVariants', this)">
+    <h3>Papas</h3>
+    <div class="variants" id="papasVariants">
+      <button class="variant-btn" onclick="addProduct('Papas Gajo',60)">Gajo $60</button>
+      <button class="variant-btn" onclick="addProduct('Papas Naturales',55)">Naturales $55</button>
+    </div>
   </div>
-</div>
 
-<!-- Bonneles -->
-<div class="card">
-  <img src="https://i.postimg.cc/htmZBQJY/bonneles.jpg" alt="Bonneles" onclick="toggleVariants('bonnelesVariants', this)">
-  <h3>Bonneles</h3>
-  <div class="variants" id="bonnelesVariants">
-    <button class="variant-btn" onclick="addProduct('Bonneles Sencillo',95)">Sencillo $95</button>
-    <button class="variant-btn" onclick="addProduct('Buffalo',110)">Buffalo $110</button>
-    <button class="variant-btn" onclick="addProduct('BBQ Mango Habanero',120)">BBQ Mango Habanero $120</button>
+  <!-- Bonneles -->
+  <div class="card">
+    <img src="https://i.postimg.cc/htmZBQJY/bonneles.jpg" alt="Bonneles" onclick="toggleVariants('bonnelesVariants', this)">
+    <h3>Bonneles</h3>
+    <div class="variants" id="bonnelesVariants">
+      <button class="variant-btn" onclick="addProduct('Bonneles Sencillo',95)">Sencillo $95</button>
+      <button class="variant-btn" onclick="addProduct('Buffalo',110)">Buffalo $110</button>
+      <button class="variant-btn" onclick="addProduct('BBQ Mango Habanero',120)">BBQ Mango Habanero $120</button>
+    </div>
   </div>
-</div>
 </section>
 
 <section class="form-container">
@@ -264,7 +262,7 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 <button class="submit-btn" onclick="sendWhatsAppAndSave()">Enviar Pedido</button>
 </section>
 
-<div class="horario">Horario: Vie, Sáb, Dom, Lun 6PM - 11PM</div>
+<!-- QUITADO EL FLOTANTE -->
 <div id="adminSticker">🍔</div>
 
 <!-- Login Admin SOLO CONTRASEÑA -->
@@ -283,6 +281,8 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 </body>
 </html>
+
+
 
 
 
