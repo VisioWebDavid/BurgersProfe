@@ -77,7 +77,7 @@ window.sendWhatsAppAndSave = async function(){
     productos: cart,
     total,
     hora,
-    fecha: serverTimestamp() // ✅ fecha del servidor
+    fecha: serverTimestamp() // ahora usa timestamp de servidor
   });
 
   cart=[];
@@ -92,40 +92,41 @@ window.loginAdmin = async function(){
   if(pass===adminPassword){
     document.getElementById('loginDiv').style.display='none';
     document.getElementById('dashboardDiv').style.display='block';
-    loadPedidosAdmin(); 
+    loadPedidosAdmin();
   }else{
     alert("❌ Contraseña incorrecta");
   }
 }
 
-// Cargar pedidos del día en el dashboard usando fecha del servidor
+// Cargar pedidos del día en el dashboard
 async function loadPedidosAdmin(){
   const cont = document.getElementById('pedidosContainer');
-  cont.innerHTML = '';
+  cont.innerHTML='';
 
-  onSnapshot(collection(db,'pedidos'), (snapshot)=>{
+  const today = new Date();
+  today.setHours(0,0,0,0); // inicio del día
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate()+1); // inicio del siguiente día
+
+  const q = query(
+    collection(db,'pedidos'),
+    where('fecha', '>=', today),
+    where('fecha', '<', tomorrow),
+    orderBy('fecha', 'asc')
+  );
+
+  onSnapshot(q, (snapshot)=>{
     cont.innerHTML='<h2 style="text-align:center; margin-bottom:1rem;">Pedidos del Día</h2>';
-    let hayPedidosHoy = false;
-
-    snapshot.forEach(doc=>{
-      const p = doc.data();
-      if(!p.fecha) return;
-
-      const fechaPedido = p.fecha.toDate();
-      const fechaHoy = new Date();
-      if(fechaPedido.getFullYear()===fechaHoy.getFullYear() &&
-         fechaPedido.getMonth()===fechaHoy.getMonth() &&
-         fechaPedido.getDate()===fechaHoy.getDate()) {
-        hayPedidosHoy = true;
+    if(snapshot.empty){
+      cont.innerHTML+='<p style="text-align:center;">No hay pedidos para hoy.</p>';
+    } else {
+      snapshot.forEach(doc=>{
+        const p = doc.data();
         cont.innerHTML+=`<div style="background:#222; padding:0.5rem; margin-bottom:0.5rem; border-radius:8px;">
           <strong>${p.nombre}</strong> - ${p.hora} - Total: $${p.total} 🍔<br>
           ${p.productos.map(x=>'• '+x.name+' ($'+x.price+')').join('<br>')}
         </div>`;
-      }
-    });
-
-    if(!hayPedidosHoy){
-      cont.innerHTML+='<p style="text-align:center;">No hay pedidos para hoy.</p>';
+      });
     }
   });
 }
@@ -169,7 +170,7 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 <body>
 
-<header>🍔 HOD DOG & HAMBURGUESAS EL PROFE </header>
+<header>🍔 HOD DOG & HamburguesAS EL PROFE 🍗</header>
 
 <section class="menu">
 <!-- Hamburguesa -->
@@ -242,7 +243,6 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 </body>
 </html>
-
 
 
 
