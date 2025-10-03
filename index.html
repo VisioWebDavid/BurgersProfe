@@ -8,7 +8,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDt-VmULFhsd7NkWpAtnmfZe1HQBUVXurQ",
@@ -69,17 +69,15 @@ window.sendWhatsAppAndSave = async function(){
   const productosStr = cart.map(p=>`${p.name} ($${p.price})`).join('%0A');
   const hora = new Date().toLocaleTimeString();
 
-  // Fecha local
-  const hoy = new Date();
-  const fecha = hoy.getFullYear() + '-' +
-                String(hoy.getMonth()+1).padStart(2,'0') + '-' +
-                String(hoy.getDate()).padStart(2,'0');
-
   const mensaje = `Pedido de ${nombre}%0AProductos:%0A${productosStr}%0AHora: ${hora}%0ATotal: $${total} 🍔`;
   window.open(`https://wa.me/526677975519?text=${mensaje}`, '_blank');
 
   await addDoc(collection(db,'pedidos'),{
-    nombre, productos: cart, total, hora, fecha
+    nombre,
+    productos: cart,
+    total,
+    hora,
+    fecha: serverTimestamp() // ✅ fecha del servidor
   });
 
   cart=[];
@@ -90,42 +88,44 @@ window.sendWhatsAppAndSave = async function(){
 // Admin login SOLO CONTRASEÑA
 window.loginAdmin = async function(){
   const pass = document.getElementById('adminPass').value.trim();
-  const adminPassword = "Cangreburger171025"; // 🔑 contraseña fija
+  const adminPassword = "Cangreburger171025";
   if(pass===adminPassword){
     document.getElementById('loginDiv').style.display='none';
-    document.getElementById('dashboardDiv').style.display='block'; // mostrar panel
+    document.getElementById('dashboardDiv').style.display='block';
     loadPedidosAdmin(); 
   }else{
     alert("❌ Contraseña incorrecta");
   }
 }
 
-// Cargar pedidos del día en el dashboard
+// Cargar pedidos del día en el dashboard usando fecha del servidor
 async function loadPedidosAdmin(){
-  // Fecha local
-  const hoy = new Date();
-  const fechaHoy = hoy.getFullYear() + '-' +
-                   String(hoy.getMonth()+1).padStart(2,'0') + '-' +
-                   String(hoy.getDate()).padStart(2,'0');
+  const cont = document.getElementById('pedidosContainer');
+  cont.innerHTML = '';
 
-  document.getElementById('fechaHoy').textContent = fechaHoy; // poner fecha en el panel
-  const q = query(collection(db,'pedidos'), where("fecha","==",fechaHoy), orderBy("hora"));
-  
-  const cont = document.getElementById('pedidosContainer'); // contenedor en el dashboard
+  onSnapshot(collection(db,'pedidos'), (snapshot)=>{
+    cont.innerHTML='<h2 style="text-align:center; margin-bottom:1rem;">Pedidos del Día</h2>';
+    let hayPedidosHoy = false;
 
-  // Listener en tiempo real
-  onSnapshot(q, (snapshot)=>{
-    cont.innerHTML=''; // limpiar
-    if(snapshot.empty){
-      cont.innerHTML='<p style="text-align:center;">No hay pedidos para hoy.</p>';
-    } else {
-      snapshot.forEach(doc=>{
-        const p = doc.data();
+    snapshot.forEach(doc=>{
+      const p = doc.data();
+      if(!p.fecha) return;
+
+      const fechaPedido = p.fecha.toDate();
+      const fechaHoy = new Date();
+      if(fechaPedido.getFullYear()===fechaHoy.getFullYear() &&
+         fechaPedido.getMonth()===fechaHoy.getMonth() &&
+         fechaPedido.getDate()===fechaHoy.getDate()) {
+        hayPedidosHoy = true;
         cont.innerHTML+=`<div style="background:#222; padding:0.5rem; margin-bottom:0.5rem; border-radius:8px;">
           <strong>${p.nombre}</strong> - ${p.hora} - Total: $${p.total} 🍔<br>
           ${p.productos.map(x=>'• '+x.name+' ($'+x.price+')').join('<br>')}
         </div>`;
-      });
+      }
+    });
+
+    if(!hayPedidosHoy){
+      cont.innerHTML+='<p style="text-align:center;">No hay pedidos para hoy.</p>';
     }
   });
 }
@@ -169,7 +169,7 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 <body>
 
-<header>🍔 HOD DOG & HAMBURGUESAS EL PROFE 🍗</header>
+<header>🍔 HOD DOG & HAMBURGUESAS EL PROFE </header>
 
 <section class="menu">
 <!-- Hamburguesa -->
@@ -233,17 +233,16 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 <h2>Login Admin</h2>
 <input type="password" id="adminPass" placeholder="Contraseña">
 <button onclick="loginAdmin()">Ingresar</button>
-<div id="pedidosContainer"></div> <!-- Aquí aparecerán los pedidos debajo de la contraseña -->
 </div>
 
 <!-- Dashboard Admin -->
 <div id="dashboardDiv">
-<h2>Pedidos del Día: <span id="fechaHoy"></span></h2>
 <div id="pedidosContainer"></div>
 </div>
 
 </body>
 </html>
+
 
 
 
