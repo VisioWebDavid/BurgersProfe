@@ -202,20 +202,26 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 <body>
 
-<header>🍔 HOD DOG & HAMBURGUESAS EL PROFE 🍗</header>
+<header>🍔 HOD DOG & HAMBURGUESAS EL PROFE ⚽ </header>
+
+<!-- Horario fijo centrado debajo del encabezado -->
+<div style="text-align:center; background:#ff6600; color:#111; padding:1rem; font-weight:bold; box-shadow:0 0 10px #ff6600;">
+  Horario: Vie, Sáb, Dom, Lun 6PM - 11PM
+</div>
 
 <section class="menu">
-<!-- Hamburguesa -->
-<div class="card">
-  <img src="https://i.postimg.cc/3w8Lv8Jy/hamburguesa.jpg" alt="Hamburguesa" onclick="toggleVariants('hamburguesaVariants', this)">
-  <h3>Hamburguesa</h3>
-  <div class="variants" id="hamburguesaVariants">
-    <button class="variant-btn" onclick="addProduct('Hamburguesa Sencilla',80)">Sencilla $80</button>
-    <button class="variant-btn" onclick="addProduct('Hamburguesa Especial',130)">Especial $130</button>
-    <button class="variant-btn" onclick="addProduct('Hawaiana',120)">Hawaiana $120</button>
-    <button class="variant-btn" onclick="addProduct('Especial de Camarón',140)">Especial de Camarón $140</button>
+  <!-- Hamburguesa -->
+  <div class="card">
+    <img src="https://i.postimg.cc/3w8Lv8Jy/hamburguesa.jpg" alt="Hamburguesa" onclick="toggleVariants('hamburguesaVariants', this)">
+    <h3>Hamburguesa</h3>
+    <div class="variants" id="hamburguesaVariants">
+      <button class="variant-btn" onclick="addProduct('Hamburguesa Sencilla',80)">Sencilla $80</button>
+      <button class="variant-btn" onclick="addProduct('Hamburguesa Especial',130)">Especial $130</button>
+      <button class="variant-btn" onclick="addProduct('Hawaiana',120)">Hawaiana $120</button>
+      <button class="variant-btn" onclick="addProduct('Especial de Camarón',140)">Especial de Camarón $140</button>
+    </div>
   </div>
-</div>
+
 
 <!-- Hot Dog -->
 <div class="card">
@@ -277,6 +283,8 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 </body>
 </html>
+
+
 
 
 
