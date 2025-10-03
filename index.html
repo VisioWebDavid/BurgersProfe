@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hod Dog & Hamburguesas El Profe</title>
 <script src="https://cdn.tailwindcss.com"></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDt-VmULFhsd7NkWpAtnmfZe1HQBUVXurQ",
@@ -88,37 +89,47 @@ window.loginAdmin = async function(){
   if(pass===adminPassword){
     document.getElementById('loginDiv').style.display='none';
     document.getElementById('dashboardDiv').style.display='block';
-    loadPedidos();
+    await loadPedidos(); // Cargar pedidos del día en tiempo real
   }else{
     alert("❌ Contraseña incorrecta");
   }
 }
 
-// Cargar pedidos del día
+// Cargar pedidos del día (Actualización en tiempo real)
 async function loadPedidos(){
   const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   document.getElementById('fechaHoy').innerText = fechaHoy;
 
   const q = query(collection(db,'pedidos'), where("fecha","==",fechaHoy), orderBy("hora"));
-  const snapshot = await getDocs(q);
-  const cont = document.getElementById('pedidosContainer');
-  cont.innerHTML='';
-  snapshot.forEach(doc=>{
-    const p = doc.data();
-    cont.innerHTML+=`<div style="background:#222; padding:0.5rem; margin-bottom:0.5rem; border-radius:8px;">
-      <strong>${p.nombre}</strong> - ${p.hora} - Total: $${p.total} 🍔<br>
-      ${p.productos.map(x=>x.name+' ($'+x.price+')').join(', ')}
-    </div>`;
+
+  onSnapshot(q, (snapshot)=>{
+    const cont = document.getElementById('pedidosContainer');
+    cont.innerHTML='';
+
+    if(snapshot.empty){
+      cont.innerHTML='<p>No hay pedidos para hoy.</p>';
+    } else {
+      snapshot.forEach(doc=>{
+        const p = doc.data();
+        cont.innerHTML+=`<div style="background:#222; padding:0.5rem; margin-bottom:0.5rem; border-radius:8px;">
+          <strong>${p.nombre}</strong> - ${p.hora} - Total: $${p.total} 🍔<br>
+          ${p.productos.map(x=>x.name+' ($'+x.price+')').join(', ')}
+        </div>`;
+      });
+    }
   });
 }
 
 // Mostrar login al picar sticker
-document.getElementById('adminSticker').onclick = ()=>{
-  document.getElementById('loginDiv').style.display='block';
-}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('adminSticker').onclick = ()=>{
+    document.getElementById('loginDiv').style.display='block';
+  }
+});
 </script>
 
 <style>
+/* Mantener todo tu CSS actual */
 body { background:#111; color:white; font-family:'Poppins', sans-serif; margin:0; }
 header { text-align:center; padding:2rem; background:linear-gradient(45deg,#313030,#cc0000); font-size:2rem; font-weight:bold; letter-spacing:2px; }
 .menu { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; padding:2rem; max-width:1200px; margin:auto; }
@@ -222,5 +233,7 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 </body>
 </html>
+
+
 
 
