@@ -8,7 +8,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDt-VmULFhsd7NkWpAtnmfZe1HQBUVXurQ",
@@ -88,33 +88,26 @@ window.loginAdmin = async function(){
   const adminPassword = "Cangreburger171025"; // 🔑 contraseña fija
   if(pass===adminPassword){
     document.getElementById('loginDiv').style.display='none';
-    // Mostrar pedidos directamente en la página
+    document.getElementById('dashboardDiv').style.display='block'; // mostrar panel
     loadPedidosAdmin(); 
   }else{
     alert("❌ Contraseña incorrecta");
   }
 }
 
-// Cargar pedidos del día en la página principal
+// Cargar pedidos del día en el dashboard
 async function loadPedidosAdmin(){
   const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  document.getElementById('fechaHoy').textContent = fechaHoy; // poner fecha en el panel
   const q = query(collection(db,'pedidos'), where("fecha","==",fechaHoy), orderBy("hora"));
-
-  // Crear contenedor si no existe
-  let cont = document.getElementById('pedidosAdmin');
-  if(!cont){
-    cont = document.createElement('div');
-    cont.id = 'pedidosAdmin';
-    cont.style.marginTop = '2rem';
-    document.body.appendChild(cont);
-  }
+  
+  const cont = document.getElementById('pedidosContainer'); // contenedor en el dashboard
 
   // Listener en tiempo real
   onSnapshot(q, (snapshot)=>{
-    cont.innerHTML='<h2 style="text-align:center; margin-bottom:1rem;">Pedidos del Día: '+fechaHoy+'</h2>';
-
+    cont.innerHTML=''; // limpiar
     if(snapshot.empty){
-      cont.innerHTML+='<p style="text-align:center;">No hay pedidos para hoy.</p>';
+      cont.innerHTML='<p style="text-align:center;">No hay pedidos para hoy.</p>';
     } else {
       snapshot.forEach(doc=>{
         const p = doc.data();
@@ -136,7 +129,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <style>
-/* Mantener todo tu CSS actual */
 body { background:#111; color:white; font-family:'Poppins', sans-serif; margin:0; }
 header { text-align:center; padding:2rem; background:linear-gradient(45deg,#313030,#cc0000); font-size:2rem; font-weight:bold; letter-spacing:2px; }
 .menu { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; padding:2rem; max-width:1200px; margin:auto; }
@@ -233,6 +225,7 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 <button onclick="loginAdmin()">Ingresar</button>
 </div>
 
+<!-- Dashboard Admin -->
 <div id="dashboardDiv">
 <h2>Pedidos del Día: <span id="fechaHoy"></span></h2>
 <div id="pedidosContainer"></div>
@@ -240,4 +233,6 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 </body>
 </html>
+
+
 
