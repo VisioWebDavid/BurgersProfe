@@ -22,7 +22,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-window.firebaseApp = { db };
 
 let cart = [];
 
@@ -35,31 +34,27 @@ window.toggleVariants = function(id, img){
   img.parentElement.classList.add('selected');
 }
 
-// Agregar productos al carrito
+// Carrito
 window.addProduct = function(name, price){
   cart.push({name, price});
   renderCart();
 }
-
-// Quitar productos
 window.removeProduct = function(i){
   cart.splice(i,1);
   renderCart();
 }
-
-// Renderizar carrito
 function renderCart(){
   const list = document.getElementById('productsList');
   list.innerHTML='';
   cart.forEach((p,i)=>{
     list.innerHTML+=`<div class="product-item">
-      ${p.name} - $${p.price}
+      ${p.name} - $${p.price} 
       <button class="remove-btn" onclick="removeProduct(${i})">X</button>
     </div>`;
   });
 }
 
-// Enviar a WhatsApp y guardar en Firebase
+// Enviar a WhatsApp y Firebase
 window.sendWhatsAppAndSave = async function(){
   const nombre = document.getElementById('nombre').value.trim();
   if(nombre===''){ alert("Escribe tu nombre"); return; }
@@ -77,7 +72,7 @@ window.sendWhatsAppAndSave = async function(){
     productos: cart,
     total,
     hora,
-    fecha: serverTimestamp() // ahora usa timestamp de servidor
+    fecha: serverTimestamp()
   });
 
   cart=[];
@@ -85,7 +80,7 @@ window.sendWhatsAppAndSave = async function(){
   document.getElementById('nombre').value='';
 }
 
-// Admin login SOLO CONTRASEÑA
+// Admin login
 window.loginAdmin = async function(){
   const pass = document.getElementById('adminPass').value.trim();
   const adminPassword = "Cangreburger171025";
@@ -98,33 +93,70 @@ window.loginAdmin = async function(){
   }
 }
 
-// Cargar pedidos del día en el dashboard
+// Cargar pedidos de hoy + historial
 async function loadPedidosAdmin(){
-  const cont = document.getElementById('pedidosContainer');
-  cont.innerHTML='';
+  const contHoy = document.getElementById('pedidosContainer');
+  const contHist = document.getElementById('historialContainer');
+  contHoy.innerHTML='';
+  contHist.innerHTML='';
 
   const today = new Date();
-  today.setHours(0,0,0,0); // inicio del día
+  today.setHours(0,0,0,0);
   const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate()+1); // inicio del siguiente día
+  tomorrow.setDate(today.getDate()+1);
 
-  const q = query(
+  // Pedidos de hoy
+  const qHoy = query(
     collection(db,'pedidos'),
-    where('fecha', '>=', today),
-    where('fecha', '<', tomorrow),
-    orderBy('fecha', 'asc')
+    where('fecha','>=',today),
+    where('fecha','<',tomorrow),
+    orderBy('fecha','asc')
   );
-
-  onSnapshot(q, (snapshot)=>{
-    cont.innerHTML='<h2 style="text-align:center; margin-bottom:1rem;">Pedidos del Día</h2>';
+  onSnapshot(qHoy, (snapshot)=>{
+    contHoy.innerHTML='<h2 style="text-align:center; margin-bottom:1rem;">Pedidos de Hoy</h2>';
     if(snapshot.empty){
-      cont.innerHTML+='<p style="text-align:center;">No hay pedidos para hoy.</p>';
+      contHoy.innerHTML+='<p style="text-align:center;">No hay pedidos para hoy.</p>';
     } else {
       snapshot.forEach(doc=>{
         const p = doc.data();
-        cont.innerHTML+=`<div style="background:#222; padding:0.5rem; margin-bottom:0.5rem; border-radius:8px;">
-          <strong>${p.nombre}</strong> - ${p.hora} - Total: $${p.total} 🍔<br>
-          ${p.productos.map(x=>'• '+x.name+' ($'+x.price+')').join('<br>')}
+        contHoy.innerHTML+=`
+        <div style="background:#222; padding:1rem; margin-bottom:0.8rem; border-radius:10px; box-shadow:0 0 10px #ff6600;">
+          <strong>Nombre:</strong> ${p.nombre} <br>
+          <strong>Productos:</strong><br>
+          <ul>
+            ${p.productos.map(x=>`<li>${x.name} - $${x.price}</li>`).join('')}
+          </ul>
+          <strong>Total:</strong> $${p.total} <br>
+          <strong>Hora:</strong> ${p.hora}
+        </div>`;
+      });
+    }
+  });
+
+  // Historial (anteriores a hoy)
+  const qHist = query(
+    collection(db,'pedidos'),
+    where('fecha','<',today),
+    orderBy('fecha','desc')
+  );
+  onSnapshot(qHist, (snapshot)=>{
+    contHist.innerHTML='<h2 style="text-align:center; margin-bottom:1rem;">Historial de Pedidos</h2>';
+    if(snapshot.empty){
+      contHist.innerHTML+='<p style="text-align:center;">No hay pedidos anteriores.</p>';
+    } else {
+      snapshot.forEach(doc=>{
+        const p = doc.data();
+        const fechaStr = p.fecha?.toDate ? p.fecha.toDate().toLocaleDateString() : '';
+        contHist.innerHTML+=`
+        <div style="background:#111; padding:1rem; margin-bottom:0.8rem; border-radius:10px; box-shadow:0 0 5px #888;">
+          <strong>Fecha:</strong> ${fechaStr} <br>
+          <strong>Nombre:</strong> ${p.nombre} <br>
+          <strong>Productos:</strong><br>
+          <ul>
+            ${p.productos.map(x=>`<li>${x.name} - $${x.price}</li>`).join('')}
+          </ul>
+          <strong>Total:</strong> $${p.total} <br>
+          <strong>Hora:</strong> ${p.hora}
         </div>`;
       });
     }
@@ -170,7 +202,7 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 <body>
 
-<header>🍔 HOD DOG & HamburguesAS EL PROFE 🍗</header>
+<header>🍔 HOD DOG & HAMBURGUESAS EL PROFE 🍗</header>
 
 <section class="menu">
 <!-- Hamburguesa -->
@@ -239,11 +271,12 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 <!-- Dashboard Admin -->
 <div id="dashboardDiv">
 <div id="pedidosContainer"></div>
+<hr style="margin:2rem 0; border-color:#555;">
+<div id="historialContainer"></div>
 </div>
 
 </body>
 </html>
-
 
 
 
