@@ -88,32 +88,39 @@ window.loginAdmin = async function(){
   const adminPassword = "Cangreburger171025"; // 🔑 contraseña fija
   if(pass===adminPassword){
     document.getElementById('loginDiv').style.display='none';
-    document.getElementById('dashboardDiv').style.display='block';
-    await loadPedidos(); // Cargar pedidos del día en tiempo real
+    // Mostrar pedidos directamente en la página
+    loadPedidosAdmin(); 
   }else{
     alert("❌ Contraseña incorrecta");
   }
 }
 
-// Cargar pedidos del día (Actualización en tiempo real)
-async function loadPedidos(){
+// Cargar pedidos del día en la página principal
+async function loadPedidosAdmin(){
   const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  document.getElementById('fechaHoy').innerText = fechaHoy;
-
   const q = query(collection(db,'pedidos'), where("fecha","==",fechaHoy), orderBy("hora"));
 
+  // Crear contenedor si no existe
+  let cont = document.getElementById('pedidosAdmin');
+  if(!cont){
+    cont = document.createElement('div');
+    cont.id = 'pedidosAdmin';
+    cont.style.marginTop = '2rem';
+    document.body.appendChild(cont);
+  }
+
+  // Listener en tiempo real
   onSnapshot(q, (snapshot)=>{
-    const cont = document.getElementById('pedidosContainer');
-    cont.innerHTML='';
+    cont.innerHTML='<h2 style="text-align:center; margin-bottom:1rem;">Pedidos del Día: '+fechaHoy+'</h2>';
 
     if(snapshot.empty){
-      cont.innerHTML='<p>No hay pedidos para hoy.</p>';
+      cont.innerHTML+='<p style="text-align:center;">No hay pedidos para hoy.</p>';
     } else {
       snapshot.forEach(doc=>{
         const p = doc.data();
         cont.innerHTML+=`<div style="background:#222; padding:0.5rem; margin-bottom:0.5rem; border-radius:8px;">
           <strong>${p.nombre}</strong> - ${p.hora} - Total: $${p.total} 🍔<br>
-          ${p.productos.map(x=>x.name+' ($'+x.price+')').join(', ')}
+          ${p.productos.map(x=>'• '+x.name+' ($'+x.price+')').join('<br>')}
         </div>`;
       });
     }
@@ -233,7 +240,4 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 </body>
 </html>
-
-
-
 
