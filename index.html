@@ -68,7 +68,12 @@ window.sendWhatsAppAndSave = async function(){
   const total = cart.reduce((a,b)=>a+b.price,0);
   const productosStr = cart.map(p=>`${p.name} ($${p.price})`).join('%0A');
   const hora = new Date().toLocaleTimeString();
-  const fecha = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+  // Fecha local
+  const hoy = new Date();
+  const fecha = hoy.getFullYear() + '-' +
+                String(hoy.getMonth()+1).padStart(2,'0') + '-' +
+                String(hoy.getDate()).padStart(2,'0');
 
   const mensaje = `Pedido de ${nombre}%0AProductos:%0A${productosStr}%0AHora: ${hora}%0ATotal: $${total} 🍔`;
   window.open(`https://wa.me/526677975519?text=${mensaje}`, '_blank');
@@ -97,7 +102,12 @@ window.loginAdmin = async function(){
 
 // Cargar pedidos del día en el dashboard
 async function loadPedidosAdmin(){
-  const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  // Fecha local
+  const hoy = new Date();
+  const fechaHoy = hoy.getFullYear() + '-' +
+                   String(hoy.getMonth()+1).padStart(2,'0') + '-' +
+                   String(hoy.getDate()).padStart(2,'0');
+
   document.getElementById('fechaHoy').textContent = fechaHoy; // poner fecha en el panel
   const q = query(collection(db,'pedidos'), where("fecha","==",fechaHoy), orderBy("hora"));
   
@@ -223,6 +233,7 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 <h2>Login Admin</h2>
 <input type="password" id="adminPass" placeholder="Contraseña">
 <button onclick="loginAdmin()">Ingresar</button>
+<div id="pedidosContainer"></div> <!-- Aquí aparecerán los pedidos debajo de la contraseña -->
 </div>
 
 <!-- Dashboard Admin -->
@@ -233,6 +244,8 @@ input:focus { border-color:#313030; box-shadow:0 0 10px #313030; }
 
 </body>
 </html>
+
+
 
 
 
